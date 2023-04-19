@@ -10,13 +10,15 @@
 
 
 using namespace std;
-float val1[N];
+
+// Распределения трех потоков. Необходимы для рассчета дивергенции Кульбака-Лейблера.
+float val1[N]; 
 float val2[N];
 float val3[N];
 
-float variable;
-volatile bool Flag;
-static pthread_mutex_t cs_mutex =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+float variable; //Наблюдаемая переменная. Один поток (генератор) заполняет её, а второй считывает значение.
+volatile bool Flag; //Флаг окончания работ потоков
+//static pthread_mutex_t cs_mutex =  PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 class Gauss{
     
@@ -29,13 +31,13 @@ public:
     Gauss(){        
         srand(time(NULL));
     }
-    float GenNext(float _d,float _m){ //генерирует число в диапазоне [-5;5] по распределению гаусса        
+    float GenNext(float _d,float _m){ //генерирует число в диапазоне [-5;5] по распределению Гаусса        
         float r;
         float x;        
         int errorcnt=0;
         do{
             errorcnt++;
-            if (errorcnt>100) return 0;
+            if (errorcnt>100) return 0; // Не удалось сгенерировать число - заменяем на ноль.
             x=1.0f*(rand()%1000-500)/N;
             r=0.001f*(rand()%1000);            
         }while(r>function(_d,_m,x));        
@@ -44,14 +46,14 @@ public:
 };
 Gauss G;
 void addVal(float *_val,float x){
-    pthread_mutex_lock( &cs_mutex );
+    //pthread_mutex_lock( &cs_mutex );
     x=x*10.0f;
     x=x+50;
     if ((x<0)||(x>=N)) throw 1;
     _val[int(x)]++;  
-    pthread_mutex_unlock( &cs_mutex );  
+    //pthread_mutex_unlock( &cs_mutex );  
 }
-float KL(float *_val1,float *_val2){
+float KL(float *_val1,float *_val2){ //Дивергенция Кульбака-Лейблера
     float mesure=0;
     float p,q;
     float sum1=0,sum2=0;
@@ -68,7 +70,7 @@ float KL(float *_val1,float *_val2){
     }
     return mesure;
 }
-void A(){    
+void A(){   // Генератор распределения
     while(Flag==true){        
         addVal(val1,variable=G.GenNext(1,0));                 
         addVal(val3,G.GenNext(2.0,0));                 
@@ -76,14 +78,14 @@ void A(){
         usleep(THREAD1_DELAY*1000);
     }    
 }
-void B(){
+void B(){   //Считыватель распределения
     float tmp;
     while(Flag){        
         addVal(val2,variable);         
         usleep(THREAD2_DELAY*1000);
     }    
 }
-void C(){
+void C(){   //Вывод статистики
     for (int i=0;i<AMOUNT_DATA;i++){
         sleep(1);
         cout<<KL(val1,val2)<<"      "<<KL(val3,val2)<< "     "<<KL(val1,val3)<<endl;        
@@ -95,7 +97,6 @@ void Init(){
         val1[i]=val2[i]=val3[i]=0;
     }
 }
-
 int main(){    
     Init();
     std::thread thread1(A);  
