@@ -4,9 +4,10 @@
 #include <math.h>
 #include <thread>
 #define N 100
-#define AMOUNT_DATA 20
+#define AMOUNT_DATA 30
 #define THREAD1_DELAY 1
-#define THREAD2_DELAY 1
+int THREAD2_DELAY = 1;
+float Dispersion=1;
 
 
 using namespace std;
@@ -72,8 +73,8 @@ float KL(float *_val1,float *_val2){ //Дивергенция Кульбака-�
 }
 void A(){   // Генератор распределения
     while(Flag==true){        
-        addVal(val1,variable=G.GenNext(1,0));                 
-        addVal(val3,G.GenNext(2.0,0));                 
+        addVal(val1,variable=G.GenNext(1.0,0));                 
+        addVal(val3,G.GenNext(Dispersion,0));               
 
         usleep(THREAD1_DELAY*1000);
     }    
@@ -97,15 +98,24 @@ void Init(){
         val1[i]=val2[i]=val3[i]=0;
     }
 }
-int main(){    
+int main(int argc,char *argv[]){
+    if (argc!=3){
+        cout<<"Usage:\n";
+        cout<<argv[0]<<" [Dispersion,float] [thread2 delay, (int msec)]\n";
+        return 0;
+    }
+
+    Dispersion=stof(argv[1]);
+    THREAD2_DELAY=atoi(argv[2]);    
+
     Init();
     std::thread thread1(A);  
     std::thread thread2(B);  
     std::thread thread3(C);  
 
-    cout<<"Wait ..."<<endl;
+    //cout<<"Wait ..."<<endl;
     thread3.join();    
-    cout<<"Completed."<<endl;    
+    //cout<<"Completed."<<endl;    
     thread1.detach();
     thread2.detach();    
     return 0;
