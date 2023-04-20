@@ -16,6 +16,7 @@ using namespace std;
 float val1[N]; 
 float val2[N];
 float val3[N];
+float val4[N];
 
 float variable; //Наблюдаемая переменная. Один поток (генератор) заполняет её, а второй считывает значение.
 volatile bool Flag; //Флаг окончания работ потоков
@@ -74,7 +75,8 @@ float KL(float *_val1,float *_val2){ //Дивергенция Кульбака-�
 void A(){   // Генератор распределения
     while(Flag==true){        
         addVal(val1,variable=G.GenNext(1.0,0));                 
-        addVal(val3,G.GenNext(Dispersion,0));               
+        addVal(val3,G.GenNext(Dispersion,0));        
+        addVal(val4,G.GenNext(Dispersion,0));        
 
         usleep(THREAD1_DELAY*1000);
     }    
@@ -89,24 +91,30 @@ void B(){   //Считыватель распределения
 void C(){   //Вывод статистики
     for (int i=0;i<AMOUNT_DATA;i++){
         sleep(1);
-        cout<<KL(val1,val2)<<"      "<<KL(val3,val2)<< "     "<<KL(val1,val3)<<endl;        
+        cout<<KL(val1,val2)<<"      "<<KL(val1,val3)<< "     "<<KL(val3,val2)<<"     "<<KL(val4,val2)<<"     "<<KL(val3,val4)<<endl;        
     }
 }
 void Init(){    
     Flag=true;
     for (int i=0;i<N;i++){
-        val1[i]=val2[i]=val3[i]=0;
+        val1[i]=val2[i]=val3[i]=val4[i]=0;
     }
 }
 int main(int argc,char *argv[]){
     if (argc!=3){
         cout<<"Usage:\n";
         cout<<argv[0]<<" [Dispersion,float] [thread2 delay, (int msec)]\n";
+
+        cout<<"Output KL distance (1- in programm N(1,0), 2 - hooked, 3,4 - some other distrib N(param,0) ):\n";
+        cout<<"1-2, 1-3, 3-2, 4-2, 3-4\n";
+
         return 0;
     }
-
     Dispersion=stof(argv[1]);
-    THREAD2_DELAY=atoi(argv[2]);    
+    THREAD2_DELAY=atoi(argv[2]);        
+   
+   //Dispersion=1.05;
+   //THREAD2_DELAY=1;        
 
     Init();
     std::thread thread1(A);  
