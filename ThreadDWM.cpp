@@ -1,10 +1,6 @@
-#include <iostream>
-#include <unistd.h>
-#include <pthread.h>
-#include <math.h>
-#include <thread>
+#include "Header.h"
 #define N 100
-#define AMOUNT_DATA 30
+#define AMOUNT_DATA 50
 #define THREAD1_DELAY 1
 int THREAD2_DELAY = 1;
 float Dispersion=1;
@@ -75,7 +71,7 @@ float KL(float *_val1,float *_val2){ //Дивергенция Кульбака-�
 void A(){   // Генератор распределения
     while(Flag==true){        
         addVal(val1,variable=G.GenNext(1.0,0));                 
-        addVal(val3,G.GenNext(Dispersion,0));        
+        addVal(val3,G.GenNext(1.0,0));        
         addVal(val4,G.GenNext(Dispersion,0));        
 
         usleep(THREAD1_DELAY*1000);
@@ -91,7 +87,8 @@ void B(){   //Считыватель распределения
 void C(){   //Вывод статистики
     for (int i=0;i<AMOUNT_DATA;i++){
         sleep(1);
-        cout<<KL(val1,val2)<<"      "<<KL(val1,val3)<< "     "<<KL(val3,val2)<<"     "<<KL(val4,val2)<<"     "<<KL(val3,val4)<<endl;        
+        //cout<<KL(val1,val2)<<"      "<<KL(val1,val3)<< "     "<<KL(val3,val2)<<"     "<<KL(val4,val2)<<"     "<<KL(val3,val4)<<endl;        
+        cout << KL(val3,val4)<<endl;
     }
 }
 void Init(){    
@@ -101,7 +98,7 @@ void Init(){
     }
 }
 int main(int argc,char *argv[]){
-    if (argc!=3){
+    /*if (argc!=3){
         cout<<"Usage:\n";
         cout<<argv[0]<<" [Dispersion,float] [thread2 delay, (int msec)]\n";
 
@@ -112,9 +109,9 @@ int main(int argc,char *argv[]){
     }
     Dispersion=stof(argv[1]);
     THREAD2_DELAY=atoi(argv[2]);        
-   
-   //Dispersion=1.05;
-   //THREAD2_DELAY=1;        
+   */
+   Dispersion=4.5;
+   THREAD2_DELAY=1;        
 
     Init();
     std::thread thread1(A);  
