@@ -8,16 +8,19 @@ private:
     int arraySize;
     float Dispersion;
     float Mean;
-
+    long Time;
+    
 public:
     float *values;
     float publicValue; //Наблюдаемая переменная. Один поток (генератор) заполняет её, а второй считывает значение.
+    long DeltaTime;
 
     Generator(int _arraySize, float _Dispersion, float _Mean){
         arraySize=_arraySize;
         values=new float[_arraySize];
         Dispersion=_Dispersion;
-        Mean=_Mean;
+        Mean=_Mean;    
+        DeltaTime=0;
     }
     ~Generator(){
         delete values;
@@ -35,6 +38,15 @@ public:
 
     void generate(){
         addVal(publicValue=GenNext(Dispersion,Mean));
+        deltaTime();
+    }    
+
+    void deltaTime(){
+        auto t0 = std::chrono::high_resolution_clock::now();        
+        auto nanosec = t0.time_since_epoch();
+        long tmp=nanosec.count();
+        DeltaTime=tmp-Time;
+        Time=tmp;
     }
 
 };
