@@ -7,15 +7,15 @@ float Dispersion=1;
 
 volatile bool Flag=true; //Флаг окончания работ потоков
 
-Generator gen1(N), gen3(N), gen4(N);
+Generator gen1(N,1,0), gen3(N,1,0), gen4(N,Dispersion,0);
 Consumer cons2(N);
 Statistic stat(N);
 
 void A(){   // Генератор распределения
     while(Flag==true){        
-        gen1.generate(1,0);
-        gen3.generate(1,0);
-        gen4.generate(Dispersion,0);
+        gen1.generate();
+        gen3.generate();
+        gen4.generate();
 
         usleep(THREAD1_DELAY*1000);// 1 мсек
     }    
