@@ -7,10 +7,10 @@
 #include <math.h>
 #include <thread>
 #include <chrono>
+
 #include "Gauss.h"
 #include "Generator.h"
 #include "Consumer.h"
 #include "Statistic.h"
-
 
 #endif
