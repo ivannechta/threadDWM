@@ -6,7 +6,7 @@ using namespace std;
 class Statistic{
 private: 
     int arraySize;
-    
+
 public: 
     Statistic (int _arraySize){
         arraySize=_arraySize;
@@ -40,6 +40,9 @@ public:
     void showStatisticLn(float * _v1,float * _v2){
         showStatistic(_v1,_v2);
         cout << "\n";
+    }
+    void showTime(Generator *g){        
+        cout << g->DeltaTime<<endl;
     }
 
 };
